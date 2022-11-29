@@ -1,0 +1,1 @@
+NextJS boilerplate code representing buildable, testable application as a front facing web application.
