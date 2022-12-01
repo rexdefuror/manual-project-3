@@ -1,0 +1,53 @@
+name: Build Pipeline
+
+## start the pipeline manually by entering version to release, this version will be the version of the artifact that is uploaded
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release"
+        required: true
+        default: ""
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Package.json info
+        uses: rexdefuror/read-package-json@v1.0.5
+      - name: Check if artifact exists
+        uses: rexdefuror/check_artifact_exists@v1.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          owner: "rexdefuror"
+          repo: "manual-project-3"
+          name: ${{ env.PACKAGE_NAME }}_v${{ github.event.inputs.version }}
+      - name: Setup Node.js
+        if: ${{ env.ARTIFACT_EXISTS == 'false' }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        if: ${{ env.ARTIFACT_EXISTS == 'false' }}
+        run: npm ci
+      - name: Build
+        if: ${{ env.ARTIFACT_EXISTS == 'false' }}
+        run: npm run build
+      - name: Tag a commit
+        uses: rexdefuror/tag-commit@v1.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          owner: "rexdefuror"
+          repo: "manual-project-3"
+          tag: "v${{ github.event.inputs.version }}"
+          commit: ${{ github.sha }}
+      - name: Upload artifact
+        if: ${{ env.ARTIFACT_EXISTS == 'false' && env.TAGGED == 'true' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PACKAGE_NAME }}_v${{ github.event.inputs.version }}.zip
+          path: ./.next
