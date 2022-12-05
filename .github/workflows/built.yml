@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Package.json info
         uses: rexdefuror/read-package-json@v1.0.5
+      ## check if artifact with input version exists
       - name: Check if artifact exists
         uses: rexdefuror/check_artifact_exists@v1.0.1
         with:
