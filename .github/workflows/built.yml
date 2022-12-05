@@ -1,4 +1,5 @@
 name: Build Pipeline
+run-name: Build version ${{ github.event.inputs.version }}
 
 ## start the pipeline manually by entering version to release, this version will be the version of the artifact that is uploaded
 
